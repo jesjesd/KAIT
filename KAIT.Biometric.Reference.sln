@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FB0CBBB5-684A-435B-9409-0B15F77A1BA9}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +19,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KAIT.Biometric.Services", "Core\KAIT.Biometric.Services\KAIT.Biometric.Services.csproj", "{021A6988-292D-45A7-95EF-E50EDBDBCD34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KAIT.Biometric.Sample", "KAIT.Biometric.Sample\KAIT.Biometric.Sample.csproj", "{269A7B21-FBFE-4E7A-8BBE-C8DE2EC0D833}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientLib", "ClientLib\ClientLib.csproj", "{25D58BA5-660F-407B-803C-22B4547C09DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +82,16 @@ Global
 		{269A7B21-FBFE-4E7A-8BBE-C8DE2EC0D833}.Release|Mixed Platforms.Build.0 = Release|x64
 		{269A7B21-FBFE-4E7A-8BBE-C8DE2EC0D833}.Release|x64.ActiveCfg = Release|x64
 		{269A7B21-FBFE-4E7A-8BBE-C8DE2EC0D833}.Release|x64.Build.0 = Release|x64
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{25D58BA5-660F-407B-803C-22B4547C09DC}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

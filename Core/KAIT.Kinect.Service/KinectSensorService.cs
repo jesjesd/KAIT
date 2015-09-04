@@ -85,7 +85,7 @@ namespace KAIT.Common.Sensor
 
         SkeletalTelemetryService _skeletalTelemetry;
 
-        BiometricTelemetryService _biometricTelemetry;
+        OxfordBiometricTelemetryService _biometricTelemetry;
 
         /// <summary>
         /// Current status text to display
@@ -96,7 +96,7 @@ namespace KAIT.Common.Sensor
 
             this.Sensor = KinectSensor.GetDefault();
 
-            _biometricTelemetry = (BiometricTelemetryService) biometricTelemetryService;
+            _biometricTelemetry = (OxfordBiometricTelemetryService) biometricTelemetryService;
             _biometricTelemetry.IsPrimaryRoleBiometricID = false;
             _biometricTelemetry.EventHubConnectionString = ConfigurationManager.AppSettings["Azure.Hub.Biometric"];
 

@@ -15,13 +15,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using KAIT.Common.Interfaces;
 using GalaSoft.MvvmLight.Ioc;
-using NEC.NeoFace.Engage;
+using Microsoft.ProjectOxford.Face.Contract;
 
 //using System.Windows.Media.Imaging;
 
 namespace KAIT.Biometric.Services
 {
-    public class BiometricTelemetryService : IDemographicsService
+    public class OxfordBiometricTelemetryService : IDemographicsService
     {
 
         public event EventHandler<BiometricData> PlayerIdentified;
@@ -72,7 +72,7 @@ namespace KAIT.Biometric.Services
                 evt(this, e);
         }
         
-        public BiometricTelemetryService(string EventHubConnectionString)
+        public OxfordBiometricTelemetryService(string EventHubConnectionString)
         {
             _eventHub = new EventHubMessageSender(EventHubConnectionString);
 
@@ -89,7 +89,7 @@ namespace KAIT.Biometric.Services
                 _overSamplingThreshold = 1;
         }
         [PreferredConstructorAttribute]
-        public BiometricTelemetryService()
+        public OxfordBiometricTelemetryService()
         {
             ConfigureOverSampling();
         }
@@ -132,31 +132,40 @@ namespace KAIT.Biometric.Services
             }
 
             System.Drawing.Bitmap bmp = bitmap;// CreateBitmap(trackingId, bitmap);
-            Debug.Print("------------------------------------------------------------------------------------------------Process Face ");
+            String tempFile = @"c:\temp\file1.jpg";
+            bmp.Save(tempFile, ImageFormat.Jpeg);
+            var fileStream = File.OpenRead(tempFile);
 
-            //Jump out if we're in a fault condition
-            if (_IsNECInFaultCondition)
-                return false;
+            Debug.Print("------------------------------------------------------------------------------------------------Process Face ");
 
             try
             {
-              
-                List<NEC.NeoFace.Engage.Face> result;
+
+                Face[] faces;
 
                 //if (DebugImages)
                 //    bmp.Save("C:\\TEMP\\REJECTED\\" + trackingId + ".png", System.Drawing.Imaging.ImageFormat.Png);
 
                 if (!TestMode)
-                    result = NEC.NeoFace.Engage.NECLabs.DetectFace(bmp);
+                {
+                    ImageAnalyzer analyzer = new ImageAnalyzer();
+                    faces = await analyzer.AnalyzeImageUsingHelper(fileStream);
+                }
                 else
-                    result = null;
+                {
+                    faces = null;
+                }
 
 
                 Debug.Print("Evaluate Demographics ");                                              //Male                             //Female
-                if (TestMode || (result != null && result.Count > 0 && (result[0].GenderConfidence > .7 || result[0].GenderConfidence < .3) && result[0].GenderConfidence != -1.0))
+                if (TestMode || (faces != null && faces.Length > 0)) 
                 {
                     Debug.Print("Get Demographcis ");
-                    var current = GetDemographics(trackingId, result);
+                    var current = GetDemographics(trackingId, faces);
+
+                    //TESTING
+                    Debug.Print("Age = " + current.Age);
+                    Debug.Print("Gender = " + current.Gender);
 
                     //This is implemented this way to maximize performance and avoid extra loops since it will only happen ONCE for every new user
                     try
@@ -175,7 +184,7 @@ namespace KAIT.Biometric.Services
                         if (_activePlayerBiometricData != null
                             && IsPrimaryRoleBiometricID
                             && _activePlayerBiometricData.SamplingCount >= _overSamplingThreshold
-                            && _activePlayerBiometricData.Transmitted && current.FaceMatch)
+                            && _activePlayerBiometricData.Transmitted) // && current.FaceMatch)
                         {
                             Debug.Print("Update base on Biometric Auth. Resetting profile " + current.TrackingId.ToString());
                             _activePlayerBiometricData.ResetBiometricSamples();
@@ -235,7 +244,6 @@ namespace KAIT.Biometric.Services
             }
             catch(Exception ex)
             {
-                _IsNECInFaultCondition = true;
                 OnDemographicsProcessingFailure(ex.Message + " " + ex.InnerException);
                 return false;
             }
@@ -343,7 +351,7 @@ namespace KAIT.Biometric.Services
         }
 
         Random _rnd = new Random();
-        private BiometricData GetDemographics(ulong id, List<Face> Results)
+        private BiometricData GetDemographics(ulong id, Face[] Results)
         {
             if (TestMode)
             {
@@ -365,11 +373,9 @@ namespace KAIT.Biometric.Services
                 {
                     var demographic = new BiometricData();
                     demographic.TrackingId = id;
-                    demographic.Age = Results[0].Age;
-                    demographic.Gender = Results[0].Gender.ToUpper().Contains("F") ? Gender.Female : Gender.Male;
-                    demographic.GenderConfidence = Results[0].GenderConfidence;
-                    demographic.FaceMatch = Results[0].MatchResult;
-                    demographic.FaceID = Results[0].Name;
+                    demographic.Age = Convert.ToInt32(Results[0].Attributes.Age);
+                    demographic.Gender = Results[0].Attributes.Gender.ToUpper().Contains("F") ? Gender.Female : Gender.Male;
+                    demographic.FaceID = Results[0].FaceId.ToString();
                     
                     return demographic;
                 }
@@ -525,7 +531,7 @@ namespace KAIT.Biometric.Services
                     uec.FaceID = payload.FaceID;
 
                     uec.InteractionCount = 1;
-
+                /*
                     if (payload.FaceMatch)
                     {
                         //Find out if we've already seen this person
@@ -548,7 +554,7 @@ namespace KAIT.Biometric.Services
                         uec.TrackingId = payload.TrackingId;
                         _userExperiences.Add(uec);
                     }
-            
+            */
             }
                
         }
@@ -681,17 +687,7 @@ namespace KAIT.Biometric.Services
         private Gender GetGender()
         {
             if (_gender == Gender.Unknown)
-            {
-                var val = (from data in _biometricDataSamples select data.GenderConfidence).Sum() / _biometricDataSamples.Count;
-
-                if (val > .7)
-                    _gender = Gender.Male;
-                else if (val < .3)
-                    _gender = Gender.Female;
-                else
-                    _gender = Gender.Unknown;
-            }
-            
+                _gender = (from data in _biometricDataSamples orderby data.Age descending select data.Gender).FirstOrDefault();
             return _gender;
         }
 

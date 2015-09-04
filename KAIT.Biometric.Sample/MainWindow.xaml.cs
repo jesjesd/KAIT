@@ -124,7 +124,7 @@ namespace Kinect.Biometric
         private async void Init()
         {
 
-            _demographicsService = new BiometricTelemetryService(ConfigurationManager.AppSettings["Azure.Hub.Biometric"]);
+            _demographicsService = new OxfordBiometricTelemetryService(ConfigurationManager.AppSettings["Azure.Hub.Biometric"]);
             _demographicsService.DemographicsReceived += _demographicsService_DemographicsReceived;
 
             _demographicsService.DemographicsProcessingFailure += _demographicsService_DemographicsProcessingFailure;
